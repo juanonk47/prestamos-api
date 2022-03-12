@@ -5,6 +5,7 @@ from flask_marshmallow import Marshmallow
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
 from flask_jwt_extended import JWTManager
+from flask_jwt_extended import jwt_required
 
 ##ROUTES IMPORT
 from routes.Usuario import usuario
@@ -14,12 +15,24 @@ from routes.Solicitud import solicitud
 
 ##FLASGGER IMPORT
 from flasgger import Swagger
+swagger_template = {
+    # Other settings
 
+    'securityDefinitions': {
+        'sso_auth': {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'Authorization'
+        }
+    },
+
+    # Other settings
+}
 
 
 
 app = Flask(__name__)
-swagger = Swagger(app)
+swagger = Swagger(app, template=swagger_template)
 ma = Marshmallow(app)
 
 ##CONFIGURE BD

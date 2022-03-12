@@ -67,6 +67,7 @@ def create_user():
     return usuario_schema.jsonify(new_user)
 
 @usuario.route('/usuario/resetpassword', methods=['PUT'])
+# @jwt_required()
 def reset_password_user():
     """Resetear el password del usuario
     ---
@@ -109,6 +110,7 @@ def reset_password_user():
 
 
 @usuario.route('/usuario/solicitudes/<userid>',methods=['GET'])
+# @jwt_required()
 def get_all_solicitud_user(userid):
     """Obtener las solicitudes de este usuario
     ---
@@ -134,6 +136,7 @@ def get_all_solicitud_user(userid):
       return solicituds_schema.jsonify(solicitudes)
     
 @usuario.route('/usuario/saldo-disponible/<userid>', methods=['GET'])
+# @jwt_required()
 def get_saldo_user(userid):
     """Obtener el saldo disponible del usuario
     ---

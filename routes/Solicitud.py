@@ -7,6 +7,7 @@ from utils.db import db
 solicitud = Blueprint('solicitud',__name__)
 
 @solicitud.route('/solicitud', methods=['POST'])
+# @jwt_required()
 def create_new_solicitud():
     """Crear nueva solicitud
     ---
@@ -47,6 +48,7 @@ def create_new_solicitud():
 
     
 @solicitud.route('/solicitud/pay/<id_solicitud>',methods=['PUT'])
+# @jwt_required()
 def pay(id_solicitud):
     """Endpoint para pagar la solicitud
     ---

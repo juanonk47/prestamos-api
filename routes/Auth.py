@@ -40,7 +40,7 @@ def login():
     usuario = list(filter(lambda user: user.correo == correo and user.password == password, usuarios))
     if len(usuario) >= 1:
           access_token = create_access_token(identity=usuario[0].correo)
-          return jsonify(access_token)
+          return jsonify(f'Bearer {access_token}')
     else:
           return {"msg": "Bad credentials"}, 401
           
