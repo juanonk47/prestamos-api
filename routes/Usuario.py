@@ -1,125 +1,169 @@
 from crypt import methods
-from flask import Blueprint
+from functools import reduce
+from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required
+from sqlalchemy import null
+from models.Usuario import Usuario,  usuario_schema, usuarios_schema
+from models.Solicitud import Solicitud, solicituds_schema
+from models.Calculadora import Calculadora
+from utils.db import db
+
 
 usuario = Blueprint('usuario', __name__)
 
 @usuario.route('/usuario', methods=['GET'])
-@jwt_required()
+# @jwt_required()
 def getAll():
     """Nos regresara todos los usuarios existentes
     ---
     definitions:
-      Palette:
-        type: object
-        properties:
-          palette_name:
-            type: array
-            items:
-              $ref: '#/definitions/Color'
-      Color:
-        type: string
+        usuario:
+         type: object
+         properties:
+          id:
+            type: integer
+          nombre:
+            type: string
+          correo:
+            type: string
+          telefono:
+            type: string
+          password:
+            type: string
     responses:
       200:
-        description: A list of colors (may be filtered by palette)
+        description: Lista de usuarios
         schema:
-          $ref: '#/definitions/Palette'
+          $ref: '#/definitions/usuario'
         examples:
           rgb: ['red', 'green', 'blue']
     """
-    return "getall"
+    usuarios = Usuario.query.all()
+    return usuarios_schema.jsonify(usuarios)
 
 @usuario.route('/usuario', methods=['POST'])
 def create_user():
     """Crear nuevo usuario
     ---
-    definitions:
-      Palette:
-        type: object
-        properties:
-          palette_name:
-            type: array
-            items:
-              $ref: '#/definitions/Color'
-      Color:
-        type: string
+    parameters:
+        - in: body
+          name: user
+          description: EL usuario a logear.
+          schema:
+            $ref: '#/definitions/usuario'
     responses:
       200:
-        description: A list of colors (may be filtered by palette)
+        description: Muestra el usuario creado
         schema:
-          $ref: '#/definitions/Palette'
-        examples:
-          rgb: ['red', 'green', 'blue']
+          $ref: '#/definitions/usuario'
     """
-    return "USUARIO CREADO"
+    nombre = request.json.get('nombre',None)
+    correo = request.json.get('correo',None)
+    telefono = request.json.get('telefono',None)
+    password = request.json.get('password',None)
+    new_user = Usuario(nombre,correo,telefono,password)
+    db.session.add(new_user)
+    db.session.commit()
+    return usuario_schema.jsonify(new_user)
 
-@usuario.route('/usuario/resetpassword', methods=['POST'])
+@usuario.route('/usuario/resetpassword', methods=['PUT'])
 def reset_password_user():
     """Resetear el password del usuario
     ---
+    parameters:
+        - in: body
+          name: solicitud
+          description: La solicitud a crear.
+          schema:
+            $ref: '#/definitions/UserResetPasssword'
     definitions:
-      Palette:
-        type: object
-        properties:
-          palette_name:
-            type: array
-            items:
-              $ref: '#/definitions/Color'
-      Color:
-        type: string
+        UserResetPasssword:
+          type: object
+          properties:
+            id:
+              type: integer
+            oldpassword:
+              type: string
+            newpassword:
+              type: string
     responses:
       200:
-        description: A list of colors (may be filtered by palette)
-        schema:
-          $ref: '#/definitions/Palette'
-        examples:
-          rgb: ['red', 'green', 'blue']
+        description: SE DIO UN RESET DE CONTRASE;A CORRECTO
+      400:
+        description: Bad credentials
+      402:
+        description: No se encontro al usuario
     """
-    return "RESET PASSWORD USER"
+    id = request.json.get('id',None)
+    newpassword = request.json.get('newpassword',None)
+    oldpassword = request.json.get('oldpassword',None)
+    usuario = Usuario.query.get(id)
+    if usuario is None:
+      return {"msg": "NO se encontro el usuario"}, 402
+    elif usuario.password == oldpassword:
+      usuario.password = newpassword
+      db.session.commit()
+      return {"msg": "Contrase;a actualizada"}, 200
+    else:
+      return {"msg": "Bad credentials"}, 400
 
-@usuario.route('/usuario/solicitudes/<userid>')
+
+@usuario.route('/usuario/solicitudes/<userid>',methods=['GET'])
 def get_all_solicitud_user(userid):
-    """Obtener todas las solicitudes realizadas por el usuario
+    """Obtener las solicitudes de este usuario
     ---
-    definitions:
-      Palette:
-        type: object
-        properties:
-          palette_name:
-            type: array
-            items:
-              $ref: '#/definitions/Color'
-      Color:
-        type: string
+    parameters:
+        - in: path
+          name: userid
+          schema:
+            type: integer
+          required: true
     responses:
       200:
-        description: A list of colors (may be filtered by palette)
+        description: Solicitudes del usuario
         schema:
-          $ref: '#/definitions/Palette'
-        examples:
-          rgb: ['red', 'green', 'blue']
+          $ref: '#/definitions/Solicitud'
+      400:
+        description: No existe el usuario
     """
-    return f'tu user #{userid}'
-@usuario.route('/usuario/saldo-disponible/<userid>')
+    usuario = Usuario.query.get(userid)
+    if usuario is None:
+          return {"msg":"No existe el usuario"}, 400
+    else:
+      solicitudes = Solicitud.query.filter(Solicitud.id_usuario == usuario.id)
+      return solicituds_schema.jsonify(solicitudes)
+    
+@usuario.route('/usuario/saldo-disponible/<userid>', methods=['GET'])
 def get_saldo_user(userid):
     """Obtener el saldo disponible del usuario
     ---
-    definitions:
-      Palette:
-        type: object
-        properties:
-          palette_name:
-            type: array
-            items:
-              $ref: '#/definitions/Color'
-      Color:
-        type: string
+    parameters:
+        - in: path
+          name: userid
+          schema:
+            type: integer
+          required: true
     responses:
       200:
-        description: A list of colors (may be filtered by palette)
-        schema:
-          $ref: '#/definitions/Palette'
-        examples:
-          rgb: ['red', 'green', 'blue']
+        description: Saldo disponible del usuario
+        content:
+          application/json:
+            schema:
+              saldoDisponible:
+                type: integer
+      400:
+        description: No existe el usuario
     """
-    return f"El saldo disponible #{userid}"
+    usuario = Usuario.query.get(userid)
+    if usuario is None:
+      return {"msg":"No existe el usuario"}, 400
+    else:
+      calculadora = Calculadora.query.all().pop()
+      solicitudes = Solicitud.query.filter(Solicitud.id_usuario == usuario.id and Solicitud.status == False)
+      valorSolicitudesNoPagasdas = 0.0
+      for p in solicitudes:
+            valorSolicitudesNoPagasdas += p.valor
+      saldoDisponible = calculadora.max - valorSolicitudesNoPagasdas           
+      return {"saldoDisponible": saldoDisponible}, 200
+
+            

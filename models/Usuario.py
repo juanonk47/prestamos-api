@@ -1,4 +1,6 @@
 from utils.db import db
+from utils.ma import ma
+from sqlalchemy.orm import relationship
 
 class Usuario(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -12,3 +14,11 @@ class Usuario(db.Model):
         self.correo = correo
         self.telefono = telefono
         self.password = password
+class UsuarioSchema(ma.Schema):
+    class Meta:
+        model = Usuario
+        include_relationships = True
+        load_instance = True
+        fields = ('id','nombre','correo','telefono','password')
+usuario_schema = UsuarioSchema()
+usuarios_schema = UsuarioSchema(many=True)

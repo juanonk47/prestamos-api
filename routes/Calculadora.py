@@ -1,6 +1,6 @@
 from crypt import methods
 from flask import Blueprint
-
+from models.Calculadora import Calculadora, calculadora_schema
 calculadora = Blueprint('calculadora',__name__)
 
 @calculadora.route('/calculadora', methods=['GET'])
@@ -9,22 +9,22 @@ def getCalculadora():
     """Nos regresara los datos de la calculadora para el landin page donde se muestra la calculadora para iniciar la solicitud
     ---
     definitions:
-      Palette:
+      Calculadora:
         type: object
         properties:
-          palette_name:
-            type: array
-            items:
-              $ref: '#/definitions/Color'
-      Color:
-        type: string
+          id:
+            type: integer
+          max:
+            type: integer
+          min:
+            type: integer
+          num:
+            type: integer
     responses:
       200:
-        description: A list of colors (may be filtered by palette)
+        description: Datos de la calculadora de prestamo
         schema:
-          $ref: '#/definitions/Palette'
-        examples:
-          rgb: ['red', 'green', 'blue']
+          $ref: '#/definitions/Calculadora'
     """
-
-    return "GET CALCULADORA"
+    calculadora = Calculadora.query.all().pop()
+    return calculadora_schema.jsonify(calculadora)

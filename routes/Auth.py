@@ -1,6 +1,10 @@
-from crypt import methods
+
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import create_access_token
+from flask_jwt_extended import jwt_required
+from flask_jwt_extended import get_jwt
+
+from models.Usuario import Usuario, usuarios_schema
 
 
 auth = Blueprint('auth', __name__)
@@ -9,28 +13,36 @@ auth = Blueprint('auth', __name__)
 def login():
     """Auth del usuario
     ---
+    parameters:
+        - in: body
+          name: user
+          description: EL usuario a logear.
+          schema:
+            $ref: '#/definitions/UserLogin'
     definitions:
-      Palette:
-        type: object
-        properties:
-          palette_name:
-            type: array
-            items:
-              $ref: '#/definitions/Color'
-      Color:
-        type: string
+        UserLogin:
+         type: object
+         properties:
+          correo:
+            type: string
+          password:
+            type: string
     responses:
       200:
-        description: A list of colors (may be filtered by palette)
-        schema:
-          $ref: '#/definitions/Palette'
-        examples:
-          rgb: ['red', 'green', 'blue']
+        description: Success and token!
+      401:
+        description: Bad credentials!
     """
-    username = request.json.get("username", None)
-    password = request.json.get("password", None)
-    if username != "test" or password != "test":
-        return jsonify({"msg": "Bad username or password"}), 401
+    correo = request.json.get('correo',None)
+    password = request.json.get('password', None)
 
-    access_token = create_access_token(identity=username)
-    return jsonify(access_token=access_token)
+    usuarios = Usuario.query.all()
+    usuario = list(filter(lambda user: user.correo == correo and user.password == password, usuarios))
+    if len(usuario) >= 1:
+          access_token = create_access_token(identity=usuario[0].correo)
+          return jsonify(access_token)
+    else:
+          return {"msg": "Bad credentials"}, 401
+          
+
+    
