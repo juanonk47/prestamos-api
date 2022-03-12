@@ -7,6 +7,26 @@ auth = Blueprint('auth', __name__)
 
 @auth.route('/login', methods=['POST'])
 def login():
+    """Auth del usuario
+    ---
+    definitions:
+      Palette:
+        type: object
+        properties:
+          palette_name:
+            type: array
+            items:
+              $ref: '#/definitions/Color'
+      Color:
+        type: string
+    responses:
+      200:
+        description: A list of colors (may be filtered by palette)
+        schema:
+          $ref: '#/definitions/Palette'
+        examples:
+          rgb: ['red', 'green', 'blue']
+    """
     username = request.json.get("username", None)
     password = request.json.get("password", None)
     if username != "test" or password != "test":

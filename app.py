@@ -9,6 +9,8 @@ from flask_jwt_extended import JWTManager
 ##ROUTES IMPORT
 from routes.Usuario import usuario
 from routes.Auth import auth
+from routes.Calculadora import calculadora
+from routes.Solicitud import solicitud
 
 ##FLASGGER IMPORT
 from flasgger import Swagger
@@ -34,3 +36,5 @@ jwt = JWTManager(app)
 ##BLUEPRINT ROUTES
 app.register_blueprint(auth)
 app.register_blueprint(usuario)
+app.register_blueprint(calculadora)
+app.register_blueprint(solicitud)
