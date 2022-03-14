@@ -1,6 +1,8 @@
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
+from flask_cors import CORS
+
 ##SECURITY IMPORT
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import get_jwt_identity
@@ -32,6 +34,7 @@ swagger_template = {
 
 
 app = Flask(__name__)
+CORS(app, resources={r"/": {"origins":"*"}})
 swagger = Swagger(app, template=swagger_template)
 ma = Marshmallow(app)
 
