@@ -3,6 +3,7 @@ from flask import Blueprint, jsonify, request
 from flask_jwt_extended import create_access_token
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import get_jwt
+import hashlib
 
 from models.Usuario import Usuario, usuarios_schema
 
@@ -35,9 +36,9 @@ def login():
     """
     correo = request.json.get('correo',None)
     password = request.json.get('password', None)
-
+    d = hashlib.sha256(password.encode())
     usuarios = Usuario.query.all()
-    usuario = list(filter(lambda user: user.correo == correo and user.password == password, usuarios))
+    usuario = list(filter(lambda user: user.correo == correo and user.password == d.hexdigest(), usuarios))
     if len(usuario) >= 1:
           access_token = create_access_token(identity=usuario[0].correo)
           return jsonify(f'Bearer {access_token}')

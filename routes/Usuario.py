@@ -7,6 +7,7 @@ from models.Usuario import Usuario,  usuario_schema, usuarios_schema
 from models.Solicitud import Solicitud, solicituds_schema
 from models.Calculadora import Calculadora
 from utils.db import db
+import hashlib
 
 
 usuario = Blueprint('usuario', __name__)
@@ -61,7 +62,8 @@ def create_user():
     correo = request.json.get('correo',None)
     telefono = request.json.get('telefono',None)
     password = request.json.get('password',None)
-    new_user = Usuario(nombre,correo,telefono,password)
+    d = hashlib.sha256(password.encode())
+    new_user = Usuario(nombre,correo,telefono,d.hexdigest())
     db.session.add(new_user)
     db.session.commit()
     return usuario_schema.jsonify(new_user)
