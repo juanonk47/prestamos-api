@@ -19,6 +19,6 @@ class UsuarioSchema(ma.Schema):
         model = Usuario
         include_relationships = True
         load_instance = True
-        fields = ('id','nombre','correo','telefono','password')
+        fields = ('id','nombre','correo','telefono')
 usuario_schema = UsuarioSchema()
 usuarios_schema = UsuarioSchema(many=True)

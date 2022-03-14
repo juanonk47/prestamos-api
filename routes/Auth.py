@@ -4,6 +4,7 @@ from flask_jwt_extended import create_access_token
 from flask_jwt_extended import jwt_required
 from flask_jwt_extended import get_jwt
 import hashlib
+from flask_cors import CORS,cross_origin
 
 from models.Usuario import Usuario, usuarios_schema
 
@@ -11,6 +12,8 @@ from models.Usuario import Usuario, usuarios_schema
 auth = Blueprint('auth', __name__)
 
 @auth.route('/login', methods=['POST'])
+@cross_origin()
+
 def login():
     """Auth del usuario
     ---

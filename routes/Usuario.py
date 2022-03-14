@@ -8,12 +8,14 @@ from models.Solicitud import Solicitud, solicituds_schema
 from models.Calculadora import Calculadora
 from utils.db import db
 import hashlib
+from flask_cors import CORS,cross_origin
 
 
 usuario = Blueprint('usuario', __name__)
 
 @usuario.route('/usuario', methods=['GET'])
 # @jwt_required()
+@cross_origin()
 def getAll():
     """Nos regresara todos los usuarios existentes
     ---
@@ -43,6 +45,7 @@ def getAll():
     return usuarios_schema.jsonify(usuarios)
 
 @usuario.route('/usuario', methods=['POST'])
+@cross_origin()
 def create_user():
     """Crear nuevo usuario
     ---
@@ -70,6 +73,8 @@ def create_user():
 
 @usuario.route('/usuario/resetpassword', methods=['PUT'])
 # @jwt_required()
+@cross_origin()
+
 def reset_password_user():
     """Resetear el password del usuario
     ---
@@ -113,6 +118,8 @@ def reset_password_user():
 
 @usuario.route('/usuario/solicitudes/<userid>',methods=['GET'])
 # @jwt_required()
+@cross_origin()
+
 def get_all_solicitud_user(userid):
     """Obtener las solicitudes de este usuario
     ---
@@ -139,6 +146,8 @@ def get_all_solicitud_user(userid):
     
 @usuario.route('/usuario/saldo-disponible/<userid>', methods=['GET'])
 # @jwt_required()
+@cross_origin()
+
 def get_saldo_user(userid):
     """Obtener el saldo disponible del usuario
     ---

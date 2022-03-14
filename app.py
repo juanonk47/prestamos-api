@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_marshmallow import Marshmallow
-from flask_cors import CORS
+from flask_cors import CORS,cross_origin
 
 ##SECURITY IMPORT
 from flask_jwt_extended import create_access_token
