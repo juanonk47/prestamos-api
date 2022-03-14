@@ -13,16 +13,7 @@ def getCalculadora():
     security:
         - sso_auth: []
     definitions:
-      Calculadora:
-        type: object
-        properties:
-          id:
-            type: integer
-          max:
-            type: integer
-          min:
-            type: integer
-          num:
+
             type: integer
     responses:
       200:
